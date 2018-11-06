@@ -89,7 +89,7 @@ public class Bag_Array<Item> implements Bag<Item> {
      * @param from the source array
      * @param size the size of the new array
      */
-    private static <T> T[] growFrom( T[] from, int size) {
+    private static <T> T[] growFrom(T[] from, int size) {
         // TODO
         return null;
     }
