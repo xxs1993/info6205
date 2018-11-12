@@ -1,6 +1,8 @@
 package edu.neu.coe.info6205.symbolTable;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.BiFunction;
 
@@ -53,10 +55,64 @@ public class BSTSimple<Key extends Comparable<Key>, Value> implements BSTdetail<
     }
 
     Node root = null;
-    
+
     @Override
     public void delete(Key key) {
         // TODO- Implement this delete method or add your variations of delete.
+        root = delete(key,root);
+    }
+
+    public int getHeight(){
+        Node x = root;
+        return  getHeight(x)-1;
+
+    }
+
+    private int getHeight(Node x){
+        int height = 0;
+
+        if(x != null){
+            int leftHeight = getHeight(x.smaller);
+            int rightHeight = getHeight(x.larger);
+            height = leftHeight >rightHeight?leftHeight:rightHeight;
+            height = height +1;
+        }
+        return height ;
+    }
+
+    private Node delete(Key key,Node x){
+        if(x == null) return null;
+        int cmp = key.compareTo(x.key);
+        if(cmp < 0 ) x.smaller = delete(key,x.smaller);
+        else if(cmp >0) x.larger = delete(key,x.larger);
+        else {
+            if(x.smaller == null) return x.larger;
+            else if(x.larger == null) return x.smaller;
+            Node t = x;
+            x = min(t.larger);
+            x.larger = deleteMin(t.larger);
+            x.smaller = t.smaller;
+        }
+        x.count--;
+        return x;
+    }
+
+    private Node min(Node x){
+        while (x.smaller !=null){
+            x = x.smaller;
+        }
+        return x;
+    }
+
+    private int size(Node x){
+        return x==null?0:x.count;
+    }
+    private Node deleteMin(Node x){
+        if(x == null) return null;
+        if(x.smaller == null) return x.larger;
+        x.smaller = deleteMin(x.smaller);
+        x.count = 1 +size(x.smaller) +size(x.larger);
+        return x;
     }
 
     private Value get(Node node, Key key) {
@@ -188,5 +244,57 @@ public class BSTSimple<Key extends Comparable<Key>, Value> implements BSTdetail<
         StringBuffer sb = new StringBuffer();
         show(root, sb, 0);
         return sb.toString();
+    }
+
+    public static Thread run(final int N,final int M){
+        Thread thread = new Thread(()->{
+            for(int range = Math.min(M,200);range<=4*M;range=range*2) {
+
+                double height = 0;
+                for (int i = 0; i < 10; i++) {
+                    Random r = new Random();
+                    Map<Integer, Integer> map = new HashMap<>();
+                    for (int p = 0; p < M; p++) {
+                        int k = r.nextInt(range);
+                        map.put(k, k);
+                    }
+                    BSTSimple bstSimple = new BSTSimple(map);
+                    for (int j = 0; j < N; j++) {
+                        double random = Math.random();
+                        int k = r.nextInt(range);
+                        if (random < 0.5) {
+                            bstSimple.delete(k);
+                        } else {
+                            bstSimple.put(k, k);
+                        }
+                    }
+                    int tempHeight = bstSimple.getHeight();
+                    height = height + tempHeight;
+                }
+                System.out.println("M = " + M + " N= " + N + " R = " + range +" height :" + height / 10);
+            }
+        });
+        return thread;
+    }
+    public static void main(String args[]){
+
+        int N = 1000;
+        int M = 100;
+        while (M <=400){
+            for(int times = 1;times <10;times = times*2) {
+
+                N = 1000 * (times);
+                try {
+                    run(N, M).start();
+                } catch (Exception e) {
+                    System.out.println("Error occurred when N = " + N);
+                }
+            }
+
+            M = M*2;
+
+        }
+
+
     }
 }
