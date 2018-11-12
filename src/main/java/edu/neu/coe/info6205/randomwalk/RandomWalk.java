@@ -26,7 +26,7 @@ public class RandomWalk {
     /**
      * Perform a random walk of m steps
      *
-     * @param m the number of steps the drunkard takes
+     * @param n the number of steps the drunkard takes
      */
     public void randomWalk(int n) {
         // TODO perform n moves

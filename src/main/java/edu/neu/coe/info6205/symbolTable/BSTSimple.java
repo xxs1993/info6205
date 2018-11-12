@@ -14,8 +14,8 @@ public class BSTSimple<Key extends Comparable<Key>, Value> implements BSTdetail<
 
     @Override
     public void putAll(Map<Key, Value> map) {
-        // TODO optionally randomize the input
-        for (Key k : map.keySet()) put(k, map.get(k));
+        // CONSIDER optionally randomize the input
+        for (Map.Entry<Key, Value> entry : map.entrySet()) put(entry.getKey(), entry.getValue());
     }
 
     @Override
@@ -41,6 +41,13 @@ public class BSTSimple<Key extends Comparable<Key>, Value> implements BSTdetail<
         return nodeValue.value;
     }
 
+
+
+    @Override
+    public void deleteMin() {
+        root = deleteMin(root);
+    }
+
     @Override
     public Set<Key> keySet() {
         return null;
@@ -58,61 +65,8 @@ public class BSTSimple<Key extends Comparable<Key>, Value> implements BSTdetail<
 
     @Override
     public void delete(Key key) {
+        root = delete(root, key);
         // TODO- Implement this delete method or add your variations of delete.
-        root = delete(key,root);
-    }
-
-    public int getHeight(){
-        Node x = root;
-        return  getHeight(x)-1;
-
-    }
-
-    private int getHeight(Node x){
-        int height = 0;
-
-        if(x != null){
-            int leftHeight = getHeight(x.smaller);
-            int rightHeight = getHeight(x.larger);
-            height = leftHeight >rightHeight?leftHeight:rightHeight;
-            height = height +1;
-        }
-        return height ;
-    }
-
-    private Node delete(Key key,Node x){
-        if(x == null) return null;
-        int cmp = key.compareTo(x.key);
-        if(cmp < 0 ) x.smaller = delete(key,x.smaller);
-        else if(cmp >0) x.larger = delete(key,x.larger);
-        else {
-            if(x.smaller == null) return x.larger;
-            else if(x.larger == null) return x.smaller;
-            Node t = x;
-            x = min(t.larger);
-            x.larger = deleteMin(t.larger);
-            x.smaller = t.smaller;
-        }
-        x.count--;
-        return x;
-    }
-
-    private Node min(Node x){
-        while (x.smaller !=null){
-            x = x.smaller;
-        }
-        return x;
-    }
-
-    private int size(Node x){
-        return x==null?0:x.count;
-    }
-    private Node deleteMin(Node x){
-        if(x == null) return null;
-        if(x.smaller == null) return x.larger;
-        x.smaller = deleteMin(x.smaller);
-        x.count = 1 +size(x.smaller) +size(x.larger);
-        return x;
     }
 
     private Value get(Node node, Key key) {
@@ -145,16 +99,54 @@ public class BSTSimple<Key extends Comparable<Key>, Value> implements BSTdetail<
             NodeValue result = put(node.smaller, key, value);
             if (node.smaller == null)
                 node.smaller = result.node;
-            if (result.value==null) node.count++;
+            if (result.value==null)
+                result.node.count++;
             return result;
         } else {
             // if key is greater than node's key, we recursively invoke put in the larger subtree
             NodeValue result = put(node.larger, key, value);
             if (node.larger == null)
                 node.larger = result.node;
-            if (result.value==null) node.count++;
+            if (result.value==null)
+                result.node.count++;
             return result;
         }
+    }
+
+    private Node delete(Node x, Key key) {
+        // TO IMPLEMENT
+        if (x == null) return null;
+        int cmp = key.compareTo(x.key);
+        if (cmp < 0) x.smaller = delete(x.smaller, key);
+        else if (cmp > 0) x.larger = delete(x.larger, key);
+        else {
+            if (x.larger == null) return x.smaller;
+            if (x.smaller == null) return x.larger;
+
+            Node t = x;
+            x = min(t.larger);
+            x.larger = deleteMin(t.larger);
+            x.smaller = t.smaller;
+        }
+        x.count = size(x.smaller) + size(x.larger) + 1;
+        return x;
+    }
+
+    private Node deleteMin(Node x) {
+        if (x.smaller == null) return x.larger;
+        x.smaller = deleteMin(x.smaller);
+        x.count = 1 + size(x.smaller) + size(x.larger);
+        return x;
+    }
+
+    private int size(Node x) {
+        return x == null ? 0 : x.count;
+    }
+
+    private Node min(Node x) {
+        if (x == null) throw new RuntimeException("min not implemented for null");
+        else if (x.smaller == null) return x;
+        else return min(x.smaller);
     }
 
     /**
@@ -218,9 +210,12 @@ public class BSTSimple<Key extends Comparable<Key>, Value> implements BSTdetail<
     }
 
     private void setRoot(Node node) {
-        root = node;
+        if(root==null){
+            root = node;
+            root.count++;
+        }else
+            root = node;
     }
-
     private void show(Node node, StringBuffer sb, int indent) {
         if (node == null) return;
         for (int i = 0; i < indent; i++) sb.append("  ");
@@ -244,6 +239,24 @@ public class BSTSimple<Key extends Comparable<Key>, Value> implements BSTdetail<
         StringBuffer sb = new StringBuffer();
         show(root, sb, 0);
         return sb.toString();
+    }
+
+    public int getHeight(){
+        Node x = root;
+        return  getHeight(x)-1;
+
+    }
+
+    private int getHeight(Node x){
+        int height = 0;
+
+        if(x != null){
+            int leftHeight = getHeight(x.smaller);
+            int rightHeight = getHeight(x.larger);
+            height = leftHeight >rightHeight?leftHeight:rightHeight;
+            height = height +1;
+        }
+        return height ;
     }
 
     public static Thread run(final int N,final int M){

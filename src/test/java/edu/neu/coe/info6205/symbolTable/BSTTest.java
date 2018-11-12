@@ -63,7 +63,7 @@ public class BSTTest {
         assertEquals("X",root.key);
         assertEquals("Y",root.larger.key);
         assertNull(root.smaller);
-//        assertEquals(2, bst.size());
+        assertEquals(2, bst.size());
     }
 
     @Test
@@ -79,7 +79,7 @@ public class BSTTest {
         assertEquals("Y",root.key);
         assertEquals("X",root.smaller.key);
         assertEquals("Z",root.larger.key);
-//        assertEquals(2, bst.size());
+        assertEquals(3, bst.size());
     }
 
     @Test
@@ -96,7 +96,7 @@ public class BSTTest {
         bst.put("Z", 37);
         assertEquals("Z", root.larger.key);
         System.out.println(bst.toString());
-//        assertEquals(3, bst.size());
+        assertEquals(3, bst.size());
     }
 
     @Test
@@ -106,7 +106,7 @@ public class BSTTest {
         bst.put("Goodbye", 5);
         bst.put("Ciao", 8);
         System.out.println(bst);
-//        assertEquals(3, bst.size());
+        assertEquals(3, bst.size());
     }
 
     @Test
@@ -118,7 +118,7 @@ public class BSTTest {
         BSTdetail<String, Integer> bst = new BSTSimple<>();
         bst.putAll(map);
         System.out.println(bst);
-//        assertEquals(map.size(), bst.size());
+        assertEquals(map.size(), bst.size());
     }
 
     @Test
@@ -131,9 +131,7 @@ public class BSTTest {
         bst.put("X", 99);
         bst.put("Z", 37);
         Queue<String> queue = new Queue_Elements<String>();
-        bst.inOrderTraverse((w, x) -> {
-            queue.enqueue(w);
-        return null; });
+        bst.inOrderTraverse((w, x) -> { queue.enqueue(w); return null; });
 //        assertEquals("X",queue.dequeue());
 //        assertEquals("Y",queue.dequeue());
 //        assertEquals("Z",queue.dequeue());
@@ -141,20 +139,54 @@ public class BSTTest {
     }
 
     @Test
-    public void testDeleteTest() throws Exception {
+    public void testDelete1() throws Exception {
         BSTSimple<String, Integer> bst = new BSTSimple<>();
         PrivateMethodTester tester = new PrivateMethodTester(bst);
         Class[] classes = {Comparable.class, Object.class};
-        BSTSimple.Node node = (BSTSimple.Node) tester.invokePrivateExplicit("makeNode", classes, "Y", 42);
+        BSTSimple.Node node = (BSTSimple.Node) tester.invokePrivateExplicit("makeNode", classes, "X", 42);
         tester.invokePrivate("setRoot", node);
-        bst.put("X", 99);
-        bst.put("Z", 37);
         bst.delete("X");
+        assertNull(bst.root);
+        assertEquals(0, bst.size());
+    }
+
+    @Test
+    public void testDelete2() throws Exception {
+        BSTSimple<String, Integer> bst = new BSTSimple<>();
+        PrivateMethodTester tester = new PrivateMethodTester(bst);
+        Class[] classes = {Comparable.class, Object.class};
+        BSTSimple.Node node = (BSTSimple.Node) tester.invokePrivateExplicit("makeNode", classes, "X", 42);
+        tester.invokePrivate("setRoot", node);
+        bst.put("Y",57);
         bst.delete("Y");
-        bst.delete("Z");
-        assertEquals(null,bst.get("X"));
-        assertEquals(null,bst.get("Y"));
-        assertEquals(null,bst.get("Z"));
-        assertTrue(bst.size()==0);
+        assertNull(bst.root.smaller);
+        assertNull(bst.root.larger);
+        assertEquals(1, bst.size());
+    }
+
+    @Test
+    public void testDelete3() throws Exception {
+        BSTSimple<String, Integer> bst = new BSTSimple<>();
+        PrivateMethodTester tester = new PrivateMethodTester(bst);
+        Class[] classes = {Comparable.class, Object.class};
+        BSTSimple.Node node = (BSTSimple.Node) tester.invokePrivateExplicit("makeNode", classes, "X", 42);
+        tester.invokePrivate("setRoot", node);
+        bst.put("W",57);
+        bst.delete("W");
+        assertNull(bst.root.smaller);
+        assertNull(bst.root.larger);
+        assertEquals(1, bst.size());
+    }
+
+    @Test
+    public void testDelete4() throws Exception {
+        BSTSimple<String, Integer> bst = new BSTSimple<>();
+        PrivateMethodTester tester = new PrivateMethodTester(bst);
+        Class[] classes = {Comparable.class, Object.class};
+        BSTSimple.Node node = (BSTSimple.Node) tester.invokePrivateExplicit("makeNode", classes, "X", 42);
+        tester.invokePrivate("setRoot", node);
+        bst.put("W",57);
+        bst.delete("A");
+        assertEquals(2, bst.size());
     }
 }
